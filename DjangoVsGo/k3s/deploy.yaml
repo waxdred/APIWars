@@ -2,6 +2,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  annotations:
+    kubernetes.io/change-cause: "Force redeploy for new image"
   name: golang-app
   namespace: apiwars
 spec:
@@ -48,6 +50,8 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  annotations:
+    kubernetes.io/change-cause: "Force redeploy for new image"
   name: python-app
   namespace: apiwars
 spec:
@@ -62,9 +66,9 @@ spec:
     spec:
       containers:
         - name: python-app
-          image: registry.waxmaker.app/apiwars/python:0.0.1
+          image: registry.waxmaker.app/apiwars/python:latest
           ports:
-            - containerPort: 8080
+            - containerPort: 8000
           resources:
             limits:
               cpu: "1"
@@ -86,5 +90,5 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 8080
+      targetPort: 8000
       nodePort: 30998

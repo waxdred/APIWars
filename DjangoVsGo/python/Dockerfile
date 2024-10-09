@@ -46,3 +46,7 @@ USER appuser
 
 # Copy the source code into the container.
 COPY ./apiwars .
+
+EXPOSE 8000
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
