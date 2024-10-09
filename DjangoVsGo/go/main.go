@@ -12,6 +12,11 @@ import (
 )
 
 var (
+	duration = prometheus.NewSummaryVec(prometheus.SummaryOpts{
+		Name:       "request_duration_seconds_rps",
+		Help:       "Duration of the request.",
+		Objectives: map[float64]float64{0.9: 0.01, 0.99: 0.001},
+	}, []string{"op"})
 	uuidRequests = prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Name: "uuid_requests_total",
@@ -28,6 +33,7 @@ var (
 )
 
 func init() {
+	prometheus.MustRegister(duration)
 	prometheus.MustRegister(uuidRequests)
 	prometheus.MustRegister(uuidLatency)
 }
@@ -35,12 +41,14 @@ func init() {
 func getUUID(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 	defer func() {
-		duration := time.Since(start).Seconds()
-		uuidLatency.Observe(duration)
+		durationInSeconds := time.Since(start).Seconds()
+		uuidLatency.Observe(durationInSeconds)
+		duration.With(prometheus.Labels{"op": "uuid"}).Observe(time.Since(start).Seconds())
 	}()
 
 	uuidRequests.Inc()
 	uuid := uuid.New()
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(uuid)
 }
 

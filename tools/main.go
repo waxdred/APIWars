@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+	"time"
 )
 
 var (
@@ -17,7 +18,7 @@ var (
 	wg    sync.WaitGroup
 )
 
-func sendRequest(url string) {
+func sendRequest(url string, i int) {
 	defer wg.Done()
 	resp, err := http.Get(url)
 	if err != nil {
@@ -31,11 +32,12 @@ func main() {
 
 	// simulate requests incrementing by inc flag
 	for i := 1; i <= *limit; i += *inc {
-		fmt.Printf("Sending %d requests...\n", i)
+		start := time.Now()
 		for j := 0; j < i; j++ {
 			wg.Add(1)
-			go sendRequest(*url)
+			go sendRequest(*url, i)
 		}
+		fmt.Printf("time: %v| Sending %d requests...\n", i, time.Since(start))
 		wg.Wait()
 	}
 
