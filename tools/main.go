@@ -39,6 +39,7 @@ func main() {
 		}
 		fmt.Printf("time: %v| Sending %d requests...\n", i, time.Since(start))
 		wg.Wait()
+		fmt.Printf("%d ms Sending %d requests...\n", time.Since(start).Milliseconds(), i)
 	}
 
 }
