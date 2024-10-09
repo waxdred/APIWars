@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+	"time"
 )
 
 var (
@@ -31,12 +32,13 @@ func main() {
 
 	// simulate requests incrementing by inc flag
 	for i := 1; i <= *limit; i += *inc {
-		fmt.Printf("Sending %d requests...\n", i)
+		start := time.Now()
 		for j := 0; j < i; j++ {
 			wg.Add(1)
 			go sendRequest(*url)
 		}
 		wg.Wait()
+		fmt.Printf("%d ms Sending %d requests...\n", time.Since(start).Milliseconds(), i)
 	}
 
 }
