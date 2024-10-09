@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: golang-app
-          image: registry.waxmaker.app/apiwars/golang:0.0.1
+          image: registry.waxmaker.app/apiwars/golang:latest
           ports:
             - containerPort: 8080
           resources:

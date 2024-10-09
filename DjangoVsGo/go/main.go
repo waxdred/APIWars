@@ -2,11 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"log"
-	"net/http"
 )
 
 var (
@@ -16,13 +18,27 @@ var (
 			Help: "Total number of UUID requests",
 		},
 	)
+	uuidLatency = prometheus.NewHistogram(
+		prometheus.HistogramOpts{
+			Name:    "http_golang_request_duration_seconds",
+			Help:    "Histogram for the duration in seconds of UUID requests.",
+			Buckets: prometheus.DefBuckets,
+		},
+	)
 )
 
 func init() {
 	prometheus.MustRegister(uuidRequests)
+	prometheus.MustRegister(uuidLatency)
 }
 
 func getUUID(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
+	defer func() {
+		duration := time.Since(start).Seconds()
+		uuidLatency.Observe(duration)
+	}()
+
 	uuidRequests.Inc()
 	uuid := uuid.New()
 	json.NewEncoder(w).Encode(uuid)
